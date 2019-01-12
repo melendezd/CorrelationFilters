@@ -1,7 +1,7 @@
 %faces = getFaces(192, 168);
 
-sPath='C:/Users/Mapa/Documents/MATLAB/yale/yaleB11/yaleB11_P00A+000E+00.pgm';
-fPath='C:/Users/Mapa/Documents/MATLAB/CroppedYale/yaleB11/yaleB11_P00A+000E+00.pgm';
+sPath='yale/yaleB11/yaleB11_P00A+000E+00.pgm';
+fPath='CroppedYale/yaleB11/yaleB11_P00A+000E+00.pgm';
 
 s = double(imread(sPath));
 f = double(imread(fPath));
