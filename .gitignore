@@ -1,2 +1,5 @@
 *~
-./trash
+*.swn
+*.swo
+*.swp
+trash/
