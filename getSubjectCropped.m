@@ -1,5 +1,5 @@
 function [ faces ] = getSubjectCropped( n, rc )
-    fPath=sprintf('C:/Users/Mapa/Documents/MATLAB/CroppedYale/yaleB%02d/',n);
+    fPath=sprintf('CroppedYale/yaleB%02d/',n);
     files = dir(strcat(fPath, '*0.pgm'));
 
     N=size(files);
