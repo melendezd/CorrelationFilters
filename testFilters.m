@@ -1,10 +1,18 @@
 
 %% Load subjects
-N = 4;
+N = 39;
 sprintf('Loading in subjects...')
 tic
-subj = arrayfun(@(x) getSubjectCropped(x), [1:N], 'UniformOutput', false);
-subjsmall = arrayfun(@(x) getSubjectCropped(x, [64 64]), [1:N], 'UniformOutput', false);
+subj = arrayfun(@(x) getSubjectCropped(x), [1:13, 15:N], ...
+    'UniformOutput', false);
+subjsmall = arrayfun(@(x) getSubjectCropped(x, [64 64]), ... 
+    [1:13, 13:N], 'UniformOutput', false);
+
+%% Load uncropped subjects
+tic
+subjFull([11:13, 15, 17:N],:,:) = arrayfun(@(x) getSubjectUncropped(x), ... 
+    [11:13, 15, 17:N], 'UniformOutput', false);
+
 toc
 
 %% Synthesize filters

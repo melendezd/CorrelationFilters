@@ -1,4 +1,7 @@
-function [ h ] = mace( t, u, SIZE )
+function [ h ] = mace( t, u)
+%MACE Minimum Average Correlation Energy filter
+%   t : Training set, [N r c] array containing N images of size [r c].
+%   u : Response vector, u(i) is the filter's specified response to image i in t
     [nfaces r c] = size(t);
 
     % Number of pixels in image
@@ -12,10 +15,11 @@ function [ h ] = mace( t, u, SIZE )
     u = ones(nfaces, 1);
 
     for i=1:nfaces
-        tf = imresize(squeeze(t(i,:,:)), [r c]);
+        %tf = imresize(squeeze(t(i,:,:)), [r c]);
+        tf = squeeze(t(i,:,:));
         x(:,i) = tf(:);
         X(:,i) = fft(x(:, i));
-        D = D + diag(abs(X(:,1)).^2);
+        D = D + diag(abs(X(:,i)).^2);
     end
 
     H = inv(D) * X * inv(X' * inv(D) * X) * u;

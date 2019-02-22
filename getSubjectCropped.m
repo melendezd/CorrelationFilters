@@ -1,9 +1,11 @@
 function [ faces ] = getSubjectCropped( n, rc )
+%GETSUBJECTCROPPED Returns a size [N, r, c] array containing N cropped images of subject n from the Extended Yale Face Database B
+%   n  : Subject ID
+%   rc : Request images be resized to rc = [r c]
     fPath=sprintf('CroppedYale/yaleB%02d/',n);
-    files = dir(strcat(fPath, '*0.pgm'));
+    files = dir(strcat(fPath, '*.pgm'));
 
-    N=size(files);
-    N=N(1);
+    N=size(files,1);
     
     r = 192;
     c = 168;
@@ -13,9 +15,9 @@ function [ faces ] = getSubjectCropped( n, rc )
     else
         faces=zeros([N r c]);
     end
-
-
+    
     for i=1:N
+        fileName = files(i).name;
         face = imread(strcat(fPath,files(i).name));
         if exist('rc', 'var')
             face = imresize(face, rc);

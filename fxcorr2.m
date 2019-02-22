@@ -1,38 +1,30 @@
-function [ o1 ] = fxcorr2( s, f, dim )
-%FXCORR2 Summary of this function goes here
-%   Detailed explanation goes here
+function [ corr ] = fxcorr2( s, f, dim )
+%FXCORR2 Fast 2D cross-correlation using Fast Fourier Transform (FFT)
+%   s   : Scene
+%   f   : Filter
+%   dim : Dimension [r c] of 2D Fourier transform
 
-%s=mat2gray(s);
-%f=mat2gray(f);
-
-sS = size(s);
-sF = size(f);
-sw = sS(2);
-sh = sS(1);
-fw = sF(2);
-fh = sF(1);
-sz = size(s) + size(f) - 1;
+scene = squeeze(s);
+filt = squeeze(f);
+sizeCorr = size(scene) + size(filt) - 1;
 
 if ~exist('dim', 'var')
-    M=sz(1);
-    N=sz(2);
+    M = sizeCorr(1);
+    N = sizeCorr(2);
 else
     M = dim(1);
     N = dim(2);
 end
 
-o1f = fft2(s, M, N) .* conj(fft2(f, M, N));
+corrFreq = fft2(scene, M, N) .* conj(fft2(filt, M, N));
 
-[w h] = size(o1f);
-a=size(o1f);
-w = a(1);
-h = a(2);
+[w h] = size(corrFreq);
 
-% Get image from FT
-o1 = ifft2(o1f,M,N);
+% Get correlation output from FT
+corr = ifft2(corrFreq,M,N);
 
 % Do circular shift on output image
-%o1 = circshift(o1, [M-sh N-sw]);
+corr = circshift(corr, [M-size(scene,1) N-size(scene,2)]);
 
 end
 
