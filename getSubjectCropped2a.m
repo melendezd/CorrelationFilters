@@ -1,6 +1,6 @@
 function [ faces ] = getSubjectCropped2( n, rc )
 %GETSUBJECTCROPPED2 Returns a 5-element cell array containing the five illumination clasees of the cropped images of subject n
-%   Categorizes by horizontal lighting angle
+%   Categorizes by sum of squares of horizontal and vertical lighting angles
 %   n  : Subject ID
 %   rc : Request images be resized to rc = [r c]
 
@@ -20,20 +20,6 @@ function [ faces ] = getSubjectCropped2( n, rc )
     % depending on incident lighting angle
     faces = cell(5, 1);
 
-    %{
-    if exist('rc', 'var')
-         User specified image size
-        for i=1:5
-            faces{i}=zeros([N rc(1) rc(2)]);
-        end
-    else
-        % User did not specify image size
-        for i=1:5
-            faces{i}=zeros([N r c]);
-        end
-    end
-    %}
-
     for i=1:N
         fileName = files(i).name; % yaleBXX_PXXX+0XXE+XX.pgm
         angle1 = abs(str2num(fileName(13:16)));
@@ -43,27 +29,29 @@ function [ faces ] = getSubjectCropped2( n, rc )
             face = imresize(face, rc);
         end
 
+
         % Determine category of face 
         % (greater lighting angle -> worse lighting conditions
         % -> higher class number)
-        if angle2 >= 75
-            s = 5;
-        elseif angle1 <= 12
+        angle = sqrt(angle1^2 + angle2^2);
+        if angle2 == 90
+            continue;
+        end
+
+        if angle < 20
             s = 1;
-        elseif angle1 <= 25
+        elseif angle <= 30
             s = 2;
-        elseif angle1 <= 50
+        elseif angle <= 50
             s = 3;
-        elseif angle1 <= 70
+        elseif angle <= 80
             s = 4;
-        elseif angle1 <= 130
+        elseif angle <= 130
             s = 5;
-        else
-            fprintf('whyyyyyyyyyyyyyyyy');
         end
 
         faces{s} = [faces{s}; permute(face, [3 1 2])];
     end
-
+    faces
 end
 
