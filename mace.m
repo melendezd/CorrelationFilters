@@ -21,6 +21,7 @@ function [ h ] = mace( t, u)
         X(:,i) = fft(x(:, i));
         D = D + diag(abs(X(:,i)).^2);
     end
+    D = (1/nfaces) * D;
 
     H = inv(D) * X * inv(X' * inv(D) * X) * u;
     h = real(ifft(H));

@@ -2,7 +2,7 @@ function [ C ] = testFilt(filt, varargin)
 %testFilt Test a filter
 %   Outputs a confusion matrix
     options = struct('train', [], 'test', [], 'response', '', 'size', [], ...
-    'args', []);
+    'type', 'PeakHeight', 'args', {{}}, 'sqi', false);
     optionNames = fieldnames(options);
     nArgs = length(varargin);
     if mod(nArgs,2) ~= 0
@@ -28,7 +28,7 @@ function [ C ] = testFilt(filt, varargin)
 
     %sizeTrain = size(squeeze(subjTrain{1}(1,:,:)));
     
-    % Create cell array containing SDF filters for each subject,
+    % Create cell array containing filters for each subject,
     % synthesized using the training set
 
     filts = cell(nTrain,1);
@@ -57,12 +57,21 @@ function [ C ] = testFilt(filt, varargin)
             train = newTrain;
         end
 
+        % Generate self-quotient image if applicable
+        if options.sqi
+          for j=1:size(train, 1)
+            train(j,:,:) = sqi(squeeze(train(j,:,:)));
+          end
+        end
+
         filts{i} = filt(train, u, options.args{:});
     end
 
+    C = struct('results', [], 'accuracy', 0);
+    
     % Use filters to classify each image in the testing set
-    % Store resulting confusion matrix in C
-    C = zeros(nTrain, nTest);
+    % Store resulting confusion matrix in cMat
+    cMat = zeros(nTrain, nTest);
     % M is a vector containing the max values for the output of each filter
     M = zeros(nTrain,1);
     % For each subject in the testing set... 
@@ -71,13 +80,16 @@ function [ C ] = testFilt(filt, varargin)
 
         % For each testing image of subject s...
         for i=1:nImgs
-            % Run each filter over image i of subject s, 
+            % Run each filter j over image i of subject s, 
             % and store the peak values in M
             M = zeros(nTrain,1);
             for j=1:nTrain
                 imgTest = squeeze(subjTest{s}(i,:,:));
-                rTrain = size(subjTest{s}, 2);
-                cTrain = size(subjTest{s}, 3);
+                if options.sqi
+                  imgTest = sqi(imgTest);
+                end
+                rTrain = size(subjTrain{s}, 2);
+                cTrain = size(subjTrain{s}, 3);
                 if ~isempty(options.size)
                     imgTest = imresize(imgTest, ...
                         [ round(options.size(1)/rTrain*r), ...
@@ -85,14 +97,21 @@ function [ C ] = testFilt(filt, varargin)
                         ] );
                 end
                 cor=fxcorr2(imgTest,filts{j});
-                M(j)=max(cor(:));
+                if strcmp(options.type,'PeakHeight')
+                    M(j)=max(cor(:));
+                elseif strcmp(options.type,'psr')
+                    M(j)=psr(cor,2,9);
+                end
+                C.corrOut{s,i,j} = cor;
             end
 
             % Classify image
             [maxVal, predictedClass] = max(M);
 
             % Update confusion matrix (s is the actual class)
-            C(predictedClass, s) = C(predictedClass, s) + 1;
+            cMat(predictedClass, s) = cMat(predictedClass, s) + 1;
         end
     end
+    C.results = cMat;
+    C.accuracy = cAccuracy(cMat);
 end 

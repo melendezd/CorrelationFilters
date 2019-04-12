@@ -16,6 +16,7 @@ function [ h ] = otsdf( t, u, l )
     %l = 1; % Tradeoff value; 0 -> MACE, 1 -> Minimum Variance SDF
     C = eye(N);
 
+    N = size(X,2);
     for i=1:nfaces
         tf = imresize(squeeze(t(i,:,:)), [r c]);
         x(:,i) = tf(:);
@@ -23,10 +24,10 @@ function [ h ] = otsdf( t, u, l )
         D = D + diag(abs(X(:,i)).^2);
     end
 
-    T = l*C + (1 - l)*D;
+    T = l*C + (1 - l)*(1/nfaces)*D;
 
-    %H = inv(D) * X * inv(X' * inv(D) * X) * u;
-    h = inv(T) * x * inv(x' * inv(T) * x) * u;
-    %h = real(ifft(H));
+    H = inv(T) * X * inv(X' * inv(T) * X) * u;
+    %h = inv(T) * x * inv(x' * inv(T) * x) * u;
+    h = real(ifft(H));
     h = reshape(h, [r c]);
 end

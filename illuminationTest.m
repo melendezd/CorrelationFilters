@@ -1,3 +1,6 @@
+clear all
+close all
+clc
 %% Load subjects
 fprintf('Loading subjects...\n')
 tic
